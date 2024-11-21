@@ -1,4 +1,4 @@
-23772975408749111
+23781635738151598
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -88906,6 +88906,27 @@ rotary encoder illuminated switch vertical
 0
 9
 8
+SN74LVC125ANSR
+NS14
+
+
+0
+14
+14
+SN74LVC125ANSR
+NS14-L
+
+
+0
+14
+14
+SN74LVC125ANSR
+NS14-M
+
+
+0
+14
+14
 Seeed Studio XIAO Series Library
 XIAO-Add-On
 
@@ -96753,3 +96774,17 @@ Varistor VF
 0
 2
 2
+project-library
+ARDUCAM_MINI
+Plated Through Hole -8 Pin{return}{return}Specifications:{return}{return}• Pin count:8{return}• Pin pitch:0.1"{return}{return}Example device(s):{return}{return}• CONN_08
+
+0
+8
+8
+project-library
+SDREAD
+
+
+0
+12
+12

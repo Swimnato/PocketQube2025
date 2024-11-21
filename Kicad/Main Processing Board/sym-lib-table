@@ -2,4 +2,6 @@
   (version 7)
   (lib (name "MEM2061-01-188-00-A_REVA")(type "KiCad")(uri "${KIPRJMOD}/MEM2061_01_188_00_A/MEM2061-01-188-00-A_REVA.kicad_sym")(options "")(descr ""))
   (lib (name "Seeed_Studio_XIAO_Series")(type "KiCad")(uri "${KIPRJMOD}/Seeed Studio XIAO Series Library/Seeed_Studio_XIAO_Series.kicad_sym")(options "")(descr ""))
+  (lib (name "project-library")(type "KiCad")(uri "${KIPRJMOD}/project-library.kicad_sym")(options "")(descr ""))
+  (lib (name "SN74LVC125ANSR")(type "KiCad")(uri "${KIPRJMOD}/SN74LVC125ANSR.kicad_sym")(options "")(descr ""))
 )
