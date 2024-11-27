@@ -428,7 +428,13 @@
   },
   "libraries": {
     "pinned_footprint_libs": [],
-    "pinned_symbol_libs": []
+    "pinned_symbol_libs": [
+      "project-library",
+      "Seeed_Studio_XIAO_Series",
+      "MEM2061-01-188-00-A_REVA",
+      "SN74LVC125ANSR",
+      "Pocket Qube Symbols"
+    ]
   },
   "meta": {
     "filename": "Main Processing Board.kicad_pro",
