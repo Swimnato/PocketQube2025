@@ -20,7 +20,6 @@ class CameraManager {
         SD.mkdir(CAMERA_DIRECTORY);
       }
       if(!SD.exists(CAMERA_POSITION)){
-        Serial.println(CAMERA_POSITION);
         File cameraPosition = SD.open(CAMERA_POSITION, FILE_WRITE);
         cameraPosition.println("0");
         cameraPosition.close();
@@ -129,83 +128,83 @@ class CameraManager {
       Serial.println(time);
     }
   
-    public:
+  public:
 
-  void takePicture() {
-    static int photoNumber;
+    void takePicture() {
+      static int photoNumber;
 
-    //read photo nubmer offset, so that we never accidentally write over photos
-    File positionReader = SD.open(CAMERA_POSITION, FILE_READ);
-    positionReader.seek(0);
-    photoNumber = positionReader.parseInt();
-    positionReader.close();
+      //read photo nubmer offset, so that we never accidentally write over photos
+      File positionReader = SD.open(CAMERA_POSITION, FILE_READ);
+      positionReader.seek(0);
+      photoNumber = positionReader.parseInt();
+      positionReader.close();
 
-    photoNumber++;
-    //just so we never overflow the card with photos, the amount of saved photos can be defined in the config file
-    if(photoNumber > cameraRollover){ 
-      photoNumber = 1;
-    }
-
-    File positionWriter = SD.open(CAMERA_POSITION, O_RDWR);
-    positionWriter.seek(0);
-    positionWriter.print(photoNumber);
-    positionWriter.close();
-
-    //take and save the photo
-    CAMSaveToSDFile(CAMERA_DIRECTORY, String(photoNumber) + ".jpg");
-  }
-
-  void setup(int chipSelect) {
-    myCAM = ArduCAM( OV2640, chipSelect);
-    uint8_t vid, pid;
-    uint8_t temp;
-    Wire.begin();
-    Serial.begin(115200);
-    Serial.println(F("ArduCAM Start!"));
-    //set the CS as an output:
-    pinMode(chipSelect,OUTPUT);
-    digitalWrite(chipSelect, HIGH);
-    // initialize SPI:
-    SPI.begin();
-      
-    //Reset the CPLD
-    myCAM.write_reg(0x07, 0x80);
-    delay(100);
-    myCAM.write_reg(0x07, 0x00);
-    delay(100);
- 
-    while(1){
-      //Check if the ArduCAM SPI bus is OK
-      myCAM.write_reg(ARDUCHIP_TEST1, 0x55);
-      temp = myCAM.read_reg(ARDUCHIP_TEST1);
-    
-      if (temp != 0x55){
-        Serial.println(F("SPI interface Error!"));
-        delay(1000);continue;
-      }else{
-        Serial.println(F("SPI interface OK."));break;
+      photoNumber++;
+      //just so we never overflow the card with photos, the amount of saved photos can be defined in the config file
+      if(photoNumber > cameraRollover){ 
+        photoNumber = 1;
       }
+
+      File positionWriter = SD.open(CAMERA_POSITION, O_RDWR);
+      positionWriter.seek(0);
+      positionWriter.print(photoNumber);
+      positionWriter.close();
+
+      //take and save the photo
+      CAMSaveToSDFile(CAMERA_DIRECTORY, String(photoNumber) + ".jpg");
     }
 
-    while(1){
-      //Check if the camera module type is OV2640
-      myCAM.wrSensorReg8_8(0xff, 0x01);
-      myCAM.rdSensorReg8_8(OV2640_CHIPID_HIGH, &vid);
-      myCAM.rdSensorReg8_8(OV2640_CHIPID_LOW, &pid);
-      if ((vid != 0x26 ) && (( pid != 0x41 ) || ( pid != 0x42 ))){
-        Serial.println(F("Can't find OV2640 module!"));
-        delay(1000);continue;
-      }
-      else{
-        Serial.println(F("OV2640 detected."));break;
-      } 
-    }
+    void setup(int chipSelect) {
+      myCAM = ArduCAM( OV2640, chipSelect);
+      uint8_t vid, pid;
+      uint8_t temp;
+      Wire.begin();
+      Serial.begin(115200);
+      Serial.println(F("ArduCAM Start!"));
+      //set the CS as an output:
+      pinMode(chipSelect,OUTPUT);
+      digitalWrite(chipSelect, HIGH);
+      // initialize SPI:
+      SPI.begin();
+        
+      //Reset the CPLD
+      myCAM.write_reg(0x07, 0x80);
+      delay(100);
+      myCAM.write_reg(0x07, 0x00);
+      delay(100);
   
-    myCAM.set_format(JPEG);
-    myCAM.InitCAM();
-    
-    myCAM.OV2640_set_JPEG_size(OV2640_1600x1200);
+      while(1){
+        //Check if the ArduCAM SPI bus is OK
+        myCAM.write_reg(ARDUCHIP_TEST1, 0x55);
+        temp = myCAM.read_reg(ARDUCHIP_TEST1);
+      
+        if (temp != 0x55){
+          Serial.println(F("SPI interface Error!"));
+          delay(1000);continue;
+        }else{
+          Serial.println(F("SPI interface OK."));break;
+        }
+      }
 
-    prepareSDCard();
-}
+      while(1){
+        //Check if the camera module type is OV2640
+        myCAM.wrSensorReg8_8(0xff, 0x01);
+        myCAM.rdSensorReg8_8(OV2640_CHIPID_HIGH, &vid);
+        myCAM.rdSensorReg8_8(OV2640_CHIPID_LOW, &pid);
+        if ((vid != 0x26 ) && (( pid != 0x41 ) || ( pid != 0x42 ))){
+          Serial.println(F("Can't find OV2640 module!"));
+          delay(1000);continue;
+        }
+        else{
+          Serial.println(F("OV2640 detected."));break;
+        } 
+      }
+    
+      myCAM.set_format(JPEG);
+      myCAM.InitCAM();
+      
+      myCAM.OV2640_set_JPEG_size(OV2640_1600x1200);
+
+      prepareSDCard();
+    }
 };
