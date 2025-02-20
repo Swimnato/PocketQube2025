@@ -51,32 +51,33 @@ class CameraManager {
       bool is_header = false;
       File outFile;
       //Flush the FIFO
+      noInterrupts();
       myCAM.flush_fifo();
       //Clear the capture done flag
       myCAM.clear_fifo_flag();
       //Start capture
       myCAM.start_capture();
-      Serial.println(F("start Capture"));
-      unsigned long time = millis();
-      while(!myCAM.get_bit(ARDUCHIP_TRIG , CAP_DONE_MASK));
-      Serial.println(F("Capture Done."));
+
+      while(!myCAM.get_bit(ARDUCHIP_TRIG , CAP_DONE_MASK)){
+        interrupts();
+        delayMicroseconds(1); //give a chance for the transmitter to recieve a message.
+        noInterrupts();
+      }
       length = myCAM.read_fifo_length();
-      Serial.print(F("The fifo length is :"));
-      Serial.println(length, DEC);
+      interrupts();
+
       if (length >= MAX_FIFO_SIZE) //384K
       {
-        Serial.println(F("Over size."));
         return ;
       }
       if (length == 0 ) //0 kb
       {
-        Serial.println(F("Size is 0."));
         return ;
       }
       //Construct a file name
       //Open the new file
+      noInterrupts();
       outFile = SD.open(filePath + fileName, O_WRITE | O_CREAT | O_TRUNC);
-      Serial.println(filePath + fileName);
       if(!outFile){
         Serial.println(F("File open faild"));
         return;
@@ -96,48 +97,54 @@ class CameraManager {
           outFile.write(buf, i);    
           //Close the file
           outFile.close();
-          Serial.println(F("Image save OK."));
           is_header = false;
           i = 0;
         }  
         if (is_header == true)
         { 
           //Write image data to buffer if not full
-          if (i < 256)
-          buf[i++] = temp;
+          if (i < 256){
+            interrupts();
+            buf[i++] = temp;
+            noInterrupts();
+          }
           else
           {
             //Write 256 bytes image data to file
             myCAM.CS_HIGH();
             outFile.write(buf, 256);
+            interrupts();
             i = 0;
             buf[i++] = temp;
+            noInterrupts();
             myCAM.CS_LOW();
             myCAM.set_fifo_burst();
           }        
         }
         else if ((temp == 0xD8) & (temp_last == 0xFF))
         {
+          interrupts();
           is_header = true;
           buf[i++] = temp_last;
-          buf[i++] = temp;   
+          buf[i++] = temp;
+          noInterrupts();
         } 
       }  
-      time = millis() - time; 
-      Serial.print("Time to capture: ");
-      Serial.println(time);
+      interrupts();
     }
   
   public:
 
-    void takePicture() {
+    int takePicture() {
       static int photoNumber;
 
       //read photo nubmer offset, so that we never accidentally write over photos
+      noInterrupts();
       File positionReader = SD.open(CAMERA_POSITION, FILE_READ);
       positionReader.seek(0);
       photoNumber = positionReader.parseInt();
       positionReader.close();
+      interrupts();
 
       photoNumber++;
       //just so we never overflow the card with photos, the amount of saved photos can be defined in the config file
@@ -145,13 +152,16 @@ class CameraManager {
         photoNumber = 1;
       }
 
+      noInterrupts();
       File positionWriter = SD.open(CAMERA_POSITION, O_RDWR);
       positionWriter.seek(0);
       positionWriter.print(photoNumber);
       positionWriter.close();
+      interrupts();
 
       //take and save the photo
       CAMSaveToSDFile(CAMERA_DIRECTORY, String(photoNumber) + ".jpg");
+      return photoNumber;
     }
 
     void setup(int chipSelect) {
@@ -204,6 +214,11 @@ class CameraManager {
       myCAM.InitCAM();
       
       myCAM.OV2640_set_JPEG_size(OV2640_1600x1200);
+
+      myCAM.write_reg(0x13, 0xc7 ^ 0x01); // this is supposed to alter the exposure?
+      myCAM.write_reg(0x45, 0x00 );
+      myCAM.write_reg(0x10, 0x09 );
+      myCAM.write_reg(0x04, 0x20 );
 
       prepareSDCard();
     }
