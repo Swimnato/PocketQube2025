@@ -79,7 +79,9 @@ class CameraManager {
       noInterrupts();
       outFile = SD.open(filePath + fileName, O_WRITE | O_CREAT | O_TRUNC);
       if(!outFile){
-        Serial.println(F("File open faild"));
+        #if DEBUG
+          Serial.println(F("File open faild"));
+        #endif
         return;
       }
       myCAM.CS_LOW();
@@ -169,8 +171,6 @@ class CameraManager {
       uint8_t vid, pid;
       uint8_t temp;
       Wire.begin();
-      Serial.begin(115200);
-      Serial.println(F("ArduCAM Start!"));
       //set the CS as an output:
       pinMode(chipSelect,OUTPUT);
       digitalWrite(chipSelect, HIGH);
@@ -189,10 +189,15 @@ class CameraManager {
         temp = myCAM.read_reg(ARDUCHIP_TEST1);
       
         if (temp != 0x55){
-          Serial.println(F("SPI interface Error!"));
+          #if DEBUG
+            Serial.println(F("SPI interface Error!"));
+          #endif
           delay(1000);continue;
         }else{
-          Serial.println(F("SPI interface OK."));break;
+          #if DEBUG
+            Serial.println(F("SPI interface OK."));
+          #endif
+          break;
         }
       }
 
