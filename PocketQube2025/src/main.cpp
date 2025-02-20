@@ -35,7 +35,7 @@ void setup() {
 
   #if DEBUG
     Serial.begin(9600);
-    Serial.println("Starting QubeSat");
+    Serial.println("\n\nStarting QubeSat");
   #endif
 
   //Initialize SD Card
@@ -48,7 +48,7 @@ void setup() {
   camera.setup(CAM_CS);
 
   #if DEBUG
-    Serial.println("\n\nQubeSat Initialized\n\n");
+    Serial.println("\nQubeSat Initialized\n\n");
   #endif
 
   interrupts();

@@ -2455,6 +2455,17 @@
 		)
 		(uuid "4d4961b3-0983-4757-9abd-85d1cfb7db44")
 	)
+	(label "Radio_CS"
+		(at 83.82 95.25 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "51b65288-744b-4d55-a532-1505c71acd04")
+	)
 	(label "SDA_I2C"
 		(at 133.35 144.78 90)
 		(fields_autoplaced yes)
@@ -2532,6 +2543,17 @@
 		)
 		(uuid "812f6e78-ad15-40b5-9201-0798d4817b42")
 	)
+	(label "Radio_G0"
+		(at 83.82 91.44 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "892a0fb2-2e27-4a02-baa5-ac336cacf29d")
+	)
 	(label "SDA_I2C"
 		(at 165.1 144.78 90)
 		(fields_autoplaced yes)
@@ -2542,6 +2564,17 @@
 			(justify left bottom)
 		)
 		(uuid "93199544-a59a-4f1c-b793-977172756d08")
+	)
+	(label "Radio_MISO"
+		(at 224.79 67.31 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a82fb721-8988-4e23-b711-1c5f9b80bad1")
 	)
 	(label "CAMERA_CS"
 		(at 168.91 69.85 180)
@@ -2564,6 +2597,17 @@
 			(justify left bottom)
 		)
 		(uuid "ad9191e0-c2c1-4191-8e5f-2d4a435669bb")
+	)
+	(label "Radio_Reset"
+		(at 83.82 87.63 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b9afe06a-e017-4432-93ac-409ddfbbd485")
 	)
 	(label "SDA_I2C"
 		(at 168.91 119.38 180)
@@ -2609,6 +2653,17 @@
 		)
 		(uuid "d07cd204-f01a-4da3-a1f0-c4f7185cfc22")
 	)
+	(label "Radio_CS"
+		(at 224.79 64.77 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d52c438b-dcc5-4834-a6df-4f16d3637c27")
+	)
 	(label "MOSI"
 		(at 128.27 95.25 0)
 		(fields_autoplaced yes)
@@ -2630,6 +2685,17 @@
 			(justify left bottom)
 		)
 		(uuid "e7f9eaa7-774c-4cae-b07d-e3daa55c3b37")
+	)
+	(label "MISO"
+		(at 224.79 69.85 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f6a0dcb1-f542-4136-8c9c-6ddf72cbd22c")
 	)
 	(label "Camera_MISO"
 		(at 168.91 72.39 180)
