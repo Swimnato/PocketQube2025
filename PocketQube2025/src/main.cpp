@@ -1,7 +1,7 @@
 #define DEBUG true
 
 #if DEBUG
-  #warning "Compiling in debug mode"
+  #pragma message "Compiling in debug mode"
 #endif
 
 #include <Arduino.h>
