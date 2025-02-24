@@ -16,6 +16,15 @@ CameraManager camera;
 
 DataPersistance datalogger;
 
+//Adafruit_MMC5603 mag = Adafruit_MMC5603();
+//call init and then tick_mag or collect_N_mag, tick_deg or collect_N_deg
+
+//LSM6DSOX IMU = LSM6DSOX();// ??? Not called in examples
+//call init and then tick_acc or collect_N_acc, tick_gyro or collect_N_gyro, tick_temp or collect_N_temp 
+
+//need something for magflag or accflag, I don't think they need to be in the .h file
+
+
 int lastPhotoTaken = 0;
 
 #define CAMERA_REFRESH_DELAY 10000
