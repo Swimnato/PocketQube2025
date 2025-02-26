@@ -4,4 +4,5 @@
   (lib (name "Seeed Studio XIAO Series Library")(type "KiCad")(uri "${KIPRJMOD}/Seeed Studio XIAO Series Library")(options "")(descr ""))
   (lib (name "project-library")(type "KiCad")(uri "${KIPRJMOD}/project-library.pretty/")(options "")(descr ""))
   (lib (name "SN74LVC125ANSR")(type "KiCad")(uri "${KIPRJMOD}/SN74LVC125ANSR.pretty/")(options "")(descr ""))
+  (lib (name "MS5611")(type "KiCad")(uri "${KIPRJMOD}/MS5611")(options "")(descr ""))
 )

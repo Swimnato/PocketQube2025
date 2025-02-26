@@ -4,7 +4,7 @@
 	(generator_version "8.0")
 	(layer "F.Cu")
 	(descr "Plated Through Hole -8 Pin\n\nSpecifications:\n\n• Pin count:8\n• Pin pitch:0.1\"\n\nExample device(s):\n\n• CONN_08")
-	(property "Reference" ""
+	(property "Reference" "Ref**"
 		(at 0 0 0)
 		(layer "F.SilkS")
 		(uuid "af861463-a8d0-4703-bbc0-f12d100dfec0")
@@ -15,7 +15,7 @@
 			)
 		)
 	)
-	(property "Value" ""
+	(property "Value" "Val**"
 		(at 0 0 0)
 		(layer "F.Fab")
 		(uuid "4af16d56-a8d5-4ccc-a018-0173297b5348")
@@ -804,5 +804,16 @@
 		(solder_mask_margin 0.1016)
 		(thermal_bridge_angle 0)
 		(uuid "9f2c37e0-c1dd-4ace-8c0c-eb2e6913a945")
+	)
+	(model "${KIPRJMOD}/project-library.pretty/Arducam MINI OV2640 no header pins.step"
+		(offset
+			(xyz 12.446 17.018 2.54)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
 	)
 )

@@ -5,16 +5,19 @@
 #endif
 
 #include <Arduino.h>
-#include <Adafruit_MMC56x3.h>
-#include <LSM6DSOX.h>
 #include <SD.h>
 #include "pinDefinitions.h"
 #include "camera.h"
 #include "dataLogger.h"
+#include "sensors.h"
 
 CameraManager camera;
 
 DataPersistance datalogger;
+
+MMCModule magneticSensor;
+
+LMSModule gyroAccelSensor;
 
 //Adafruit_MMC5603 mag = Adafruit_MMC5603();
 //call init and then tick_mag or collect_N_mag, tick_deg or collect_N_deg
@@ -54,6 +57,10 @@ void setup() {
 
   datalogger.init();
 
+  magneticSensor.init_mag();
+
+  gyroAccelSensor.init_LSM6DOX();
+
   camera.setup(CAM_CS);
 
   #if DEBUG
@@ -64,6 +71,9 @@ void setup() {
 }
 
 void loop() {
+
+  
+
   if(millis() - lastSensorRefresh >= SENSOR_REFRESH_DELAY || !lastSensorRefresh || millis() < lastSensorRefresh) {
     #if DEBUG
       Serial.println("Refreshing Sensors");
