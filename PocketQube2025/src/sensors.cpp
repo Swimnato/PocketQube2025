@@ -192,7 +192,7 @@ class LMSModule{
         float temp_data[N];
         for (int i = 0; i < N; i++) {
             if (!IMU.temperatureAvailable()) return "LSM6DSOX: Temperature not available";
-            bool readSuccess = IMU.readTemperatureFloat((temp_data[i]));
+            bool readSuccess = IMU.readTemperatureFloat(temp_data[i]);
             if(!readSuccess) return "LSM6DSOX: Temperature not available";
             delay(5);
         }
