@@ -6,4 +6,5 @@
   (lib (name "SN74LVC125ANSR")(type "KiCad")(uri "${KIPRJMOD}/SN74LVC125ANSR.kicad_sym")(options "")(descr ""))
   (lib (name "Pocket Qube Symbols")(type "KiCad")(uri "${KIPRJMOD}/Pocket Qube Symbols.kicad_sym")(options "")(descr ""))
   (lib (name "SN74LVC125APWR")(type "KiCad")(uri "${KIPRJMOD}/SN74LVC125APWR/SN74LVC125APWR.kicad_sym")(options "")(descr "")(disabled)(hidden))
+  (lib (name "MS5611-01BA03")(type "KiCad")(uri "${KIPRJMOD}/MS5611/MS5611-01BA03.kicad_sym")(options "")(descr ""))
 )

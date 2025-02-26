@@ -427,7 +427,9 @@
     }
   },
   "libraries": {
-    "pinned_footprint_libs": [],
+    "pinned_footprint_libs": [
+      "MS5611"
+    ],
     "pinned_symbol_libs": [
       "project-library",
       "Seeed_Studio_XIAO_Series",
