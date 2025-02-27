@@ -9,7 +9,32 @@ class MMCModule {
     private:
     bool magflag = false;
     Adafruit_MMC5603 mag = Adafruit_MMC5603(12345);
+    double magnet_data[3];
+    double degrees;
 
+    void collect_mag(){
+        double temp[3];
+        sensors_event_t event;
+        mag.getEvent(&event);
+        temp[0] = event.magnetic.x;
+        temp[1] = event.magnetic.y;
+        temp[2] = event.magnetic.z;
+    }
+    // double collect_mag(){ //may need alpha filter
+    //     double result[3];
+    //     sensors_event_t event;
+    //     mag.getEvent(&event);
+    //     result[0] = event.magnetic.x;
+    //     result[1] = event.magnetic.y;
+    //     result[2] = event.magnetic.z;
+    //     return result;
+    // }
+
+    // double collect_deg(){
+    //     sensors_event_t event;
+    //     mag.getEvent(&event);
+    //     return atan2(event.magnetic.y, event.magnetic.x) * 180 / 3.14159;
+    // }
     //collects N samples and averages the middle ones
     String collect_N_mag(uint8_t N){// N >= 3
         if (N < 3) return "N too small";  
@@ -85,6 +110,16 @@ class MMCModule {
         }
     }
 
+    double get_data(){ //x, y, z, degrees
+        if (magflag) return -1;
+        double result[4];
+        double temp[3] = collect_mag();
+        result[0] = temp[0];
+        result[1] = temp[1];
+        result[2] = temp[2];
+        result[3] = collect_deg();
+        return result;
+    }
     String tick_mag(uint8_t N){ // N is the number of samples to be averaged, at least 3
         if (magflag) return "MMC5603 not initialized";
         return "Mag Sensor (uT) " + collect_N_mag(N);
@@ -103,6 +138,28 @@ class LMSModule{
     private:
 
     bool accflag = false;
+    
+    double collect_acc(){
+        double result[3];
+        if (!IMU.accelerationAvailable()) return "LSM6DSOX: Acceleration not available";
+        IMU.readAcceleration(result[0], result[1], result[2]);
+        return result;
+    }
+
+    double collect_gyro(){
+        double result[3];
+        if (!IMU.gyroscopeAvailable()) return "LSM6DSOX: Gyroscope not available";
+        IMU.readGyroscope(result[0], result[1], result[2]);
+        return result;
+    }
+
+    double collect_temp(){ //Redundant?
+        double result;
+        if (!IMU.temperatureAvailable()) return "LSM6DSOX: Temperature not available";
+        bool readSuccess = IMU.readTemperatureFloat(result);
+        if(!readSuccess) return "LSM6DSOX: Temperature not available";
+        return double(result);
+    }
 
     String collect_N_acc(uint8_t N){
         if (accflag) return "LSM6DSOX not initialized";
@@ -211,6 +268,22 @@ class LMSModule{
 
     public:
 
+    double get_data(){
+        double result[7];
+        double temp[3] = collect_acc();
+        result[0] = temp[0];
+        result[1] = temp[1];
+        result[2] = temp[2];
+        temp = collect_gyro();
+        result[3] = temp[0];
+        result[4] = temp[1];
+        result[5] = temp[2];
+        result[6] = collect_temp();
+        return result;
+
+    }
+
+
     String init_LSM6DOX(){
         if(!IMU.begin()){
             accflag = true;
@@ -240,4 +313,35 @@ class LMSModule{
 
 };
 
+
+//********************************************************************************************************** */
+/*
+#include "MS5611.h"
+MS5611 MS5611(0x77);
+//needs fast baud rate
+MS5611.begin();
+MS5611.getAddress();
+M55611.reset(1); //not sure how this resets it. Maybe calls some bias getter.
+MS5611.setOversampling(OSR_ULTRA_HIGH);
+
+MS5611.read()
+//should output MS5611_READ_OK
+MS5611.getPressure();
+MS5611.getPressurePascal();
+MS5611.getTemperature();
+
+
+
+
+*/
+
+/*
+  There are 5 oversampling settings, each corresponding to a different amount of milliseconds
+  The higher the oversampling, the more accurate the reading will be, however the longer it will take.
+  OSR_ULTRA_HIGH -> 8.22 millis
+  OSR_HIGH       -> 4.11 millis
+  OSR_STANDARD   -> 2.1 millis
+  OSR_LOW        -> 1.1 millis
+  OSR_ULTRA_LOW  -> 0.5 millis   Default = backwards compatible
+*/
 
