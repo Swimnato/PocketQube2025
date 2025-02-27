@@ -477,7 +477,7 @@
       "plot": "Fabrication Files",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "Main Processing Board.step",
       "svg": "",
       "vrml": ""
     },
