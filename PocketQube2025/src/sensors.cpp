@@ -84,8 +84,8 @@ class MMCModule {
         }
     }
 
-    float get_data(){ //x, y, z, degrees
-        if (magflag) return -1;
+    float* get_data(){ //x, y, z, degrees
+        if (magflag) return NULL;
         float result[4];
         result[0] = magnet_data[0];
         result[1] = magnet_data[1];
@@ -114,7 +114,11 @@ class LMSModule{
     //does this need an IMU init? the arduino files don't 
 
     void collect_acc(bool init = false){
-        if (!IMU.accelerationAvailable()) accel_data = 0;
+        if (!IMU.accelerationAvailable()){
+            accel_data[0] = 0;
+            accel_data[1] = 0;
+            accel_data[2] = 0;
+        } 
         if (init){
             IMU.readAcceleration(accel_data[0], accel_data[1], accel_data[2]);
         }
@@ -128,7 +132,11 @@ class LMSModule{
     }
 
     void collect_gyro(bool init = false){
-        if (!IMU.gyroscopeAvailable()) gyro_data = 0;
+        if (!IMU.gyroscopeAvailable()){
+            gyro_data[0] = 0;
+            gyro_data[1] = 0;
+            gyro_data[2] = 0;
+        } 
         if (init){
             IMU.readGyroscope(gyro_data[0], gyro_data[1], gyro_data[2]);
         }
@@ -167,7 +175,9 @@ class LMSModule{
             accel_data[0] = temp[0] * ACC_ALPHA + accel_data[0] * (1 - ACC_ALPHA);
             accel_data[1] = temp[1] * ACC_ALPHA + accel_data[1] * (1 - ACC_ALPHA);
             accel_data[2] = temp[2] * ACC_ALPHA + accel_data[2] * (1 - ACC_ALPHA);
-            temp = 0;
+            temp[0] = 0;
+            temp[1] = 0;
+            temp[2] = 0;
             IMU.readGyroscope(temp[0], temp[1], temp[2]);
             gyro_data[0] = temp[0] * ACC_ALPHA + gyro_data[0] * (1 - ACC_ALPHA);
             gyro_data[1] = temp[1] * ACC_ALPHA + gyro_data[1] * (1 - ACC_ALPHA);
@@ -183,13 +193,18 @@ class LMSModule{
 
     public:
 
-    float get_data(){
+    float* get_data(){
         float result[7];
-        float temp[3] = accel_data();
+        float temp[3];
+        temp[0] = accel_data[0];
+        temp[1] = accel_data[1];
+        temp[2] = accel_data[2];
         result[0] = temp[0];
         result[1] = temp[1];
         result[2] = temp[2];
-        temp = gyro_data();
+        temp[0] = gyro_data[0];
+        temp[1] = gyro_data[1];
+        temp[2] = gyro_data[2];
         result[3] = temp[0];
         result[4] = temp[1];
         result[5] = temp[2];
@@ -282,15 +297,15 @@ class MS5611Module{
         else {
             msflag = false;
             ms.setOversampling(OSR_ULTRA_HIGH);// Can change to other settings
-            ms.reset
+            ms.reset();
             collect_pressure(true);
             //collect_temp(true);
             return "MS5611 Initialized";
         }
     }
 
-    float get_data(){
-        if (msflag) return -1;
+    float* get_data(){
+        if (msflag) return NULL;
         float result[2];
         result[0] = pressure;
         result[1] = temperature;
