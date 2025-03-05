@@ -19,6 +19,8 @@ MMCModule magneticSensor;
 
 LMSModule gyroAccelSensor;
 
+MS5611Module atmosphericSensor;
+
 //Adafruit_MMC5603 mag = Adafruit_MMC5603();
 //call init and then tick_mag or collect_N_mag, tick_deg or collect_N_deg
 
@@ -60,6 +62,8 @@ void setup() {
   magneticSensor.init_mag();
 
   gyroAccelSensor.init_LSM6DOX();
+
+  atmosphericSensor.init_MS5611();
 
   camera.setup(CAM_CS);
 
