@@ -86,7 +86,7 @@ class MMCModule {
 
     float* get_data(){ //x, y, z, degrees
         if (magflag) return NULL;
-        float result[4];
+        static float result[4];
         result[0] = magnet_data[0];
         result[1] = magnet_data[1];
         result[2] = magnet_data[2];
@@ -194,7 +194,7 @@ class LMSModule{
     public:
 
     float* get_data(){
-        float result[7];
+        static float result[7];
         float temp[3];
         temp[0] = accel_data[0];
         temp[1] = accel_data[1];
@@ -306,7 +306,7 @@ class MS5611Module{
 
     float* get_data(){
         if (msflag) return NULL;
-        float result[2];
+        static float result[2];
         result[0] = pressure;
         result[1] = temperature;
         return result;
