@@ -26,13 +26,9 @@ class MMCModule {
             magnet_data[2] = event.magnetic.z;
         }
         else{
-            float temp[3];
-            temp[0] = event.magnetic.x * MAG_ALPHA + magnet_data[0] * (1 - MAG_ALPHA);
-            temp[1] = event.magnetic.y * MAG_ALPHA + magnet_data[1] * (1 - MAG_ALPHA);
-            temp[2] = event.magnetic.z * MAG_ALPHA + magnet_data[2] * (1 - MAG_ALPHA);
-            magnet_data[0] = temp[0];
-            magnet_data[1] = temp[1];
-            magnet_data[2] = temp[2];
+            magnet_data[0] = event.magnetic.x * MAG_ALPHA + magnet_data[0] * (1 - MAG_ALPHA);
+            magnet_data[1] = event.magnetic.y * MAG_ALPHA + magnet_data[1] * (1 - MAG_ALPHA);
+            magnet_data[2] = event.magnetic.z * MAG_ALPHA + magnet_data[2] * (1 - MAG_ALPHA);
         }
     }
 
@@ -57,13 +53,9 @@ class MMCModule {
             degrees = atan2(event.magnetic.y, event.magnetic.x) * 180 / 3.14159;
         }
         else{
-            float temp[3];
-            temp[0] = event.magnetic.x * MAG_ALPHA + magnet_data[0] * (1 - MAG_ALPHA);
-            temp[1] = event.magnetic.y * MAG_ALPHA + magnet_data[1] * (1 - MAG_ALPHA);
-            temp[2] = event.magnetic.z * MAG_ALPHA + magnet_data[2] * (1 - MAG_ALPHA);
-            magnet_data[0] = temp[0];
-            magnet_data[1] = temp[1];
-            magnet_data[2] = temp[2];
+            magnet_data[0] = event.magnetic.x * MAG_ALPHA + magnet_data[0] * (1 - MAG_ALPHA);
+            magnet_data[1] = event.magnetic.y * MAG_ALPHA + magnet_data[1] * (1 - MAG_ALPHA);
+            magnet_data[2] = event.magnetic.z * MAG_ALPHA + magnet_data[2] * (1 - MAG_ALPHA);
             degrees = degrees * DEG_ALPHA + atan2(event.magnetic.y, event.magnetic.x) * 180 / 3.14159 * (1 - DEG_ALPHA);
         }
     }
@@ -77,9 +69,7 @@ class MMCModule {
         }
         else {
             magflag = false;
-            collect_deg(true);
-            collect_mag(true);
-            //collect_magnet(true);
+            collect_magnet(true);
             return "MMC5603 Initialized";
         }
     }
@@ -93,11 +83,10 @@ class MMCModule {
         result[3] = degrees;
         return result;
     }
+    
     void tick(){//select the right one here
         if (magflag) return;
-        collect_deg();
-        collect_mag();
-        //collect_magnet();
+        collect_magnet();
     }
 
 };
@@ -111,7 +100,6 @@ class LMSModule{
     float accel_data[3];
     float gyro_data[3];
     float temp_data;
-    //does this need an IMU init? the arduino files don't 
 
     void collect_acc(bool init = false){
         if (!IMU.accelerationAvailable()){
@@ -164,50 +152,21 @@ class LMSModule{
     }
 
     void collect_all(bool init = false){
-        if (init){
-            IMU.readAcceleration(accel_data[0], accel_data[1], accel_data[2]);
-            IMU.readGyroscope(gyro_data[0], gyro_data[1], gyro_data[2]);
-            IMU.readTemperatureFloat(temp_data);
-        }
-        else{
-            float temp[3];
-            IMU.readAcceleration(temp[0], temp[1], temp[2]);
-            accel_data[0] = temp[0] * ACC_ALPHA + accel_data[0] * (1 - ACC_ALPHA);
-            accel_data[1] = temp[1] * ACC_ALPHA + accel_data[1] * (1 - ACC_ALPHA);
-            accel_data[2] = temp[2] * ACC_ALPHA + accel_data[2] * (1 - ACC_ALPHA);
-            temp[0] = 0;
-            temp[1] = 0;
-            temp[2] = 0;
-            IMU.readGyroscope(temp[0], temp[1], temp[2]);
-            gyro_data[0] = temp[0] * ACC_ALPHA + gyro_data[0] * (1 - ACC_ALPHA);
-            gyro_data[1] = temp[1] * ACC_ALPHA + gyro_data[1] * (1 - ACC_ALPHA);
-            gyro_data[2] = temp[2] * ACC_ALPHA + gyro_data[2] * (1 - ACC_ALPHA);
-
-            float temp_t;
-            IMU.readTemperatureFloat(temp_t);
-            // if(!readSuccess) return "LSM6DSOX: Temperature not available";
-            temp_data = temp_t * ACC_ALPHA + temp_data * (1 - ACC_ALPHA);
-
-        }
+        collect_acc(init);
+        collect_gyro(init);
+        collect_temp(init);
     }
 
     public:
 
     float* get_data(){
         static float result[7];
-        float temp[3];
-        temp[0] = accel_data[0];
-        temp[1] = accel_data[1];
-        temp[2] = accel_data[2];
-        result[0] = temp[0];
-        result[1] = temp[1];
-        result[2] = temp[2];
-        temp[0] = gyro_data[0];
-        temp[1] = gyro_data[1];
-        temp[2] = gyro_data[2];
-        result[3] = temp[0];
-        result[4] = temp[1];
-        result[5] = temp[2];
+        result[0] = accel_data[0];
+        result[1] = accel_data[1];
+        result[2] = accel_data[0];
+        result[3] = gyro_data[0];
+        result[4] = gyro_data[1];
+        result[5] = gyro_data[2];
         result[6] = temp_data;
         return result;
 
@@ -221,19 +180,13 @@ class LMSModule{
         }
         else {
             accflag = false;
-            collect_acc(true);
-            collect_gyro(true);
-            collect_temp(true);
-            // collect_all(true);
+            collect_all(true);
             return "LSM6DSOX Initialized";
         }
     }
     void tick(){
         if (accflag) return;
-        collect_acc();
-        collect_gyro();
-        collect_temp();
-        // collect_all();
+        collect_all();
     }
 
 };
@@ -243,7 +196,7 @@ class LMSModule{
 class MS5611Module{
     private:
     bool msflag = false;
-    MS5611 ms = MS5611(0x77); //may need to remove the ms. The code technically doens't need it
+    MS5611 ms = MS5611(0x77);
     float pressure;
     float temperature;
 
@@ -314,8 +267,7 @@ class MS5611Module{
 
     void tick(){
         if (msflag) return;
-        collect_pressure();
-        //collect_temp();
+        collect_all();
     }
 
 
