@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "dataLogger.h"
 #include "sensors.h"
+#include "powerMonitor.h"
 
 CameraManager camera;
 
@@ -20,6 +21,8 @@ MMCModule magneticSensor;
 LMSModule gyroAccelSensor;
 
 MS5611Module atmosphericSensor;
+
+PowerMonitor powerMonitor;
 
 //Adafruit_MMC5603 mag = Adafruit_MMC5603();
 //call init and then tick_mag or collect_N_mag, tick_deg or collect_N_deg
@@ -64,6 +67,8 @@ void setup() {
   gyroAccelSensor.init_LSM6DOX();
 
   atmosphericSensor.init_MS5611();
+
+  powerMonitor.initSensors();
 
   camera.setup(CAM_CS);
 
