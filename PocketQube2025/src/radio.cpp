@@ -2,7 +2,12 @@
 
 #define SS 10
 #define RESET 9
-#define DIO0 -1 // We will not have this pin so this will disable it
+#define DIO_0 -1    // We will not have this pin so this will disable it
+#define TX_POWER 15 // Max input power for FEM (SKY66122-11) is 16dBm
+#define FREQ 915E6
+
+#define TXRX 7 // CTX pin for Front End Module
+#define FEM 5  // enable disable pin for Front End Module
 
 // Missile state machine states
 typedef enum
@@ -20,11 +25,12 @@ void radio_init()
     // init stuff here
 
     // init LoRa Library
-    if (!LoRa.begin(915E6))
+    LoRa.setPins(SS, RESET, DIO_0);
+    LoRa.setTxPower(TX_POWER);
+    if (!LoRa.begin(FREQ))
     {
         Serial.println("Starting LoRa failed!");
     }
-    LoRa.setPins(SS, RESET, DIO0);
 
     // Setup FEM pins
 
