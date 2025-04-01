@@ -24,15 +24,6 @@ MS5611Module atmosphericSensor;
 
 PowerMonitor powerMonitor;
 
-//Adafruit_MMC5603 mag = Adafruit_MMC5603();
-//call init and then tick_mag or collect_N_mag, tick_deg or collect_N_deg
-
-//LSM6DSOX IMU = LSM6DSOX();// ??? Not called in examples
-//call init and then tick_acc or collect_N_acc, tick_gyro or collect_N_gyro, tick_temp or collect_N_temp 
-
-//need something for magflag or accflag, I don't think they need to be in the .h file
-
-
 int lastPhotoTaken = 0;
 
 #define CAMERA_REFRESH_DELAY 10000
@@ -53,24 +44,27 @@ void setup() {
   #if DEBUG
     Serial.begin(9600);
     Serial.println("\n\nStarting QubeSat");
+    while(true){
+      Serial.println(":)");
+    }
   #endif
 
   //Initialize SD Card
-  while(!SD.begin(SD_CS)){
-    Serial.println(F("SD Card Error!"));delay(1000);
+  while(!SD.begin(/*SD_CS*/6)){
+    Serial.println("SD Card Error!");delay(1000);
   }
 
-  datalogger.init();
+  // datalogger.init();
 
-  magneticSensor.init_mag();
+  // magneticSensor.init_mag();
 
-  gyroAccelSensor.init_LSM6DOX();
+  // gyroAccelSensor.init_LSM6DOX();
 
-  atmosphericSensor.init_MS5611();
+  // atmosphericSensor.init_MS5611();
 
-  powerMonitor.initSensors();
+  // powerMonitor.initSensors();
 
-  camera.setup(CAM_CS);
+  // camera.setup(CAM_CS);
 
   #if DEBUG
     Serial.println("\nQubeSat Initialized\n\n");
@@ -96,7 +90,7 @@ void loop() {
       Serial.println("Capturing Photo");
     #endif
     lastCameraRefresh = millis();
-    lastPhotoTaken = camera.takePicture();
+    // lastPhotoTaken = camera.takePicture();
   }
 
   if(millis() - lastCSVUpdate >= CSV_UPATE_DELAY || millis() < lastCSVUpdate){
@@ -104,7 +98,7 @@ void loop() {
       Serial.println("Updating CSV");
     #endif
     lastCSVUpdate = millis();
-    datalogger.addToCSV(lastPhotoTaken);
+    // datalogger.addToCSV(lastPhotoTaken);
     if(lastPhotoTaken)
       lastPhotoTaken = 0;
   }
@@ -113,7 +107,7 @@ void loop() {
 }
 
 void updateSensors(){
-  static double dataIn[NUM_ITEMS_IN_CSV];
+  // static double dataIn[NUM_ITEMS_IN_CSV];
   
-  datalogger.addData(dataIn);
+  // datalogger.addData(dataIn);
 }
