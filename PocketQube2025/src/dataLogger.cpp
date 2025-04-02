@@ -32,7 +32,7 @@ class DataPersistance{
         }
 
         void appendData(File* destination, double* data, int photoNumber){
-            noInterrupts();
+            
             for(byte col = 0; col < NUM_ITEMS_IN_CSV; col++){
                 switch(col){
                     case ALTITUTE:
@@ -48,11 +48,11 @@ class DataPersistance{
                         break;
                 }
                 destination->print(',');
-                interrupts();
+                
             }
-            noInterrupts();
+            
             destination->println();
-            interrupts();
+            
         }
 
         double* averageData(){
@@ -104,14 +104,14 @@ class DataPersistance{
             static bool writeHeader;
             writeHeader = false;
 
-            noInterrupts();
+            
             File positionFile = SD.open(PATH_TO_LOG_POS, FILE_READ);
             positionFile.seek(0);
             fileNumber = positionFile.parseInt();
             position = positionFile.parseInt();
             positionFile.close();
 
-            interrupts();
+            
             position++;
             if(fileNumber == 0 || position > CSV_LENGTH){
                 fileNumber++;
@@ -119,7 +119,7 @@ class DataPersistance{
                 writeHeader = true;
             }
 
-            noInterrupts();
+            
             positionFile = SD.open(PATH_TO_LOG_POS, O_RDWR);
             positionFile.println(fileNumber);
             positionFile.println(position);
@@ -128,9 +128,9 @@ class DataPersistance{
             File CSV = SD.open(PATH_TO_LOG + fileNumber + ".csv", FILE_WRITE);
             if(writeHeader)
                 CSV.println(columnLabels);
-            interrupts();
+            
             double* data = averageData();
-            noInterrupts();
+            
             appendData(&CSV, data, photoNumber);
             delete data;
         }
