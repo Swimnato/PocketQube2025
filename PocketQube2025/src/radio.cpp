@@ -17,6 +17,9 @@ radio_st radio_current_st = init_st;
 #define RECEIVE_REFRESH_DELAY 10000
 unsigned long timeSinceLastTransition = 0;
 
+static void stateTransition();
+static void stateAction();
+
 static boolean radioSleepTransition();
 static void radioSleepAction();
 
@@ -42,6 +45,17 @@ void radio_init()
     // Setup FEM pins
 
     radio_current_st = init_st;
+}
+
+void radio_loop()
+{
+    stateTransition();
+
+    stateAction();
+
+    // Check/Call transmit
+
+    // Check/Call receive
 }
 
 static void stateTransition()
@@ -96,17 +110,6 @@ static void stateAction()
         // printf("Undefined state transition!");
         break;
     }
-}
-
-void radio_loop()
-{
-    stateTransition();
-
-    stateAction();
-
-    // Check/Call transmit
-
-    // Check/Call receive
 }
 
 static boolean radioSleepTransition()
