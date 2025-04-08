@@ -11,13 +11,15 @@
 #define TXRX 7 // CTX pin for Front End Module
 #define FEM 5  // Enable disable pin for Front End Module
 
-#define SLEEP_REFRESH_DELAY 60000
-#define RECEIVE_REFRESH_DELAY 10000
+#define TRANSMIT_REFRESH_DELAY 60000 // time between transmits in ms
+#define RECEIVE_REFRESH_DELAY 10000  // time spent in receive in ms
 
 class RadioManager
 {
 private:
     radio_st radio_current_st = init_st;
+
+    boolean txComplete = false;
 
     unsigned long timeSinceLastTransition = 0;
 
@@ -31,14 +33,22 @@ private:
             radio_current_st = sleep_st;
             break;
         case sleep_st:
-            // Call transition function, will move to tx if enough time has elapsed
-            if (radioSleepTransition())
+            // Will move to tx if enough time has elapsed else stay in sleep
+            if (millis() - timeSinceLastTransition >= TRANSMIT_REFRESH_DELAY || millis() < timeSinceLastTransition)
             {
+                // Transition actions, turn on FEM and radio
+                // TODO
+
+                timeSinceLastTransition = millis();
                 radio_current_st = tx_st;
             }
             break;
         case tx_st:
             // Will transition to RX after transmission is complete
+            if (txComplete)
+            { // flag set in tx function
+                radio_current_st = rx_st;
+            }
             break;
         case rx_st:
             // Call RX transition function, will wait in RX for a certain amount of time, then transition
@@ -79,17 +89,6 @@ private:
             // printf("Undefined state transition!");
             break;
         }
-    }
-
-    boolean radioSleepTransition()
-    {
-        if (millis() - timeSinceLastTransition >= SLEEP_REFRESH_DELAY || millis() < timeSinceLastTransition)
-        {
-            timeSinceLastTransition = millis();
-            return true;
-        }
-
-        return false;
     }
 
     void radioSleepAction()
@@ -136,9 +135,9 @@ private:
     }
 
 public:
+    // init stuff here
     void radio_init()
     {
-        // init stuff here
 
         // init LoRa Library
         LoRa.setPins(SS, RESET, DIO_0);
