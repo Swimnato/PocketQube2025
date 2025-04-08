@@ -30,6 +30,7 @@ private:
         {
         case init_st:
             // State machine init stuff
+            LoRa.sleep(); // turn to sleep
             radio_current_st = sleep_st;
             break;
         case sleep_st:
@@ -47,13 +48,18 @@ private:
             // Will transition to RX after transmission is complete
             if (txComplete)
             { // flag set in tx function
+                // TODO set to rx mode
+                LoRa.receive();
                 radio_current_st = rx_st;
             }
             break;
         case rx_st:
             // Call RX transition function, will wait in RX for a certain amount of time, then transition
-            if (radioRxTransition())
+            if (millis() - timeSinceLastTransition >= RECEIVE_REFRESH_DELAY || millis() < timeSinceLastTransition)
             {
+                // TODO Sleep mode transition actions
+                LoRa.sleep();
+                timeSinceLastTransition = millis();
                 radio_current_st = sleep_st;
             }
             break;
@@ -76,62 +82,24 @@ private:
             break;
         case sleep_st:
             // Run sleep actions
-            radioSleepAction();
             break;
         case tx_st:
             // Do transmit things
             break;
         case rx_st:
             // Do receive things
-            radioRxAction();
+            // print RSSI of packet
+#ifdef DEBUG
+            Serial.print("' with RSSI ");
+            Serial.println(LoRa.packetRssi());
+#endif
             break;
         default:
-            // printf("Undefined state transition!");
+#ifdef DEBUG
+            Serial.println("Undefined state action!");
+#endif
             break;
         }
-    }
-
-    void radioSleepAction()
-    {
-        LoRa.sleep();
-    }
-
-    boolean radioRxTransition()
-    {
-        if (millis() - timeSinceLastTransition >= RECEIVE_REFRESH_DELAY || millis() < timeSinceLastTransition)
-        {
-            timeSinceLastTransition = millis();
-            return true;
-        }
-
-        return false;
-    }
-
-    void radioRxAction()
-    {
-        LoRa.receive();
-    }
-
-    void onReceive(int packetSize)
-    {
-// received a packet
-#ifdef DEBUG
-        Serial.print("Received packet '");
-#endif
-
-        // read packet
-        for (int i = 0; i < packetSize; i++)
-        {
-#ifdef DEBUG
-            Serial.print(c);
-#endif
-        }
-
-// print RSSI of packet
-#ifdef DEBUG
-        Serial.print("' with RSSI ");
-        Serial.println(LoRa.packetRssi());
-#endif
     }
 
 public:
