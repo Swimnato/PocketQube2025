@@ -2,166 +2,167 @@
 
 #include <LoRa.h>
 
-#define SS 10
-#define RESET 9
+#define SS 10       // TODO check pin number
+#define RESET 9     // TODO check pin number
 #define DIO_0 -1    // We will not have this pin so this will disable it
 #define TX_POWER 15 // Max input power for FEM (SKY66122-11) is 16dBm
 #define FREQ 915E6
 
 #define TXRX 7 // CTX pin for Front End Module
-#define FEM 5  // enable disable pin for Front End Module
-
-radio_st radio_current_st = init_st;
+#define FEM 5  // Enable disable pin for Front End Module
 
 #define SLEEP_REFRESH_DELAY 60000
 #define RECEIVE_REFRESH_DELAY 10000
-unsigned long timeSinceLastTransition = 0;
 
-static void stateTransition();
-static void stateAction();
-
-static boolean radioSleepTransition();
-static void radioSleepAction();
-
-static boolean radioRxTransition();
-static void radioRxAction();
-
-void radio_init()
+class RadioManager
 {
-    // init stuff here
+private:
+    radio_st radio_current_st = init_st;
 
-    // init LoRa Library
-    LoRa.setPins(SS, RESET, DIO_0);
-    LoRa.setTxPower(TX_POWER);
-    if (!LoRa.begin(FREQ))
+    unsigned long timeSinceLastTransition = 0;
+
+    void stateTransition()
     {
-#ifdef DEBUG
-        Serial.println("Starting LoRa failed!");
-#endif
-    }
-
-    LoRa.onReceive(onReceive); // Set up callback for receiving
-
-    // Setup FEM pins
-
-    radio_current_st = init_st;
-}
-
-void radio_loop()
-{
-    stateTransition();
-
-    stateAction();
-
-    // Check/Call transmit
-
-    // Check/Call receive
-}
-
-static void stateTransition()
-{
-    // State transition switch case
-    switch (radio_current_st)
-    {
-    case init_st:
-        // State machine init stuff
-        radio_current_st = sleep_st;
-        break;
-    case sleep_st:
-        if (radioSleepTransition())
+        // State transition switch case
+        switch (radio_current_st)
         {
-            radio_current_st = tx_st;
-        }
-        break;
-    case tx_st:
-        break;
-    case rx_st:
-        if (radioRxTransition())
-        {
+        case init_st:
+            // State machine init stuff
             radio_current_st = sleep_st;
-        }
-        break;
-    default:
+            break;
+        case sleep_st:
+            // Call transition function, will move to tx if enough time has elapsed
+            if (radioSleepTransition())
+            {
+                radio_current_st = tx_st;
+            }
+            break;
+        case tx_st:
+            // Will transition to RX after transmission is complete
+            break;
+        case rx_st:
+            // Call RX transition function, will wait in RX for a certain amount of time, then transition
+            if (radioRxTransition())
+            {
+                radio_current_st = sleep_st;
+            }
+            break;
+        default:
 #ifdef DEBUG
-        Serial.println("Undefined state transition!");
+            Serial.println("Undefined state transition!");
 #endif
-        break;
+            break;
+        }
     }
-}
 
-static void stateAction()
-{
-    // State action switch case
-    switch (radio_current_st)
+    void stateAction()
     {
-    case init_st:
-        // State machine init stuff
-        break;
-    case sleep_st:
-        radioSleepAction();
-        break;
-    case tx_st:
-        // Do transmit things
-        break;
-    case rx_st:
-        radioRxAction();
-        break;
-    default:
-        // printf("Undefined state transition!");
-        break;
+        // State action switch case
+        switch (radio_current_st)
+        {
+        case init_st:
+            // State machine init stuff
+            // Doesn't need any actions, already all called in setup
+            break;
+        case sleep_st:
+            // Run sleep actions
+            radioSleepAction();
+            break;
+        case tx_st:
+            // Do transmit things
+            break;
+        case rx_st:
+            // Do receive things
+            radioRxAction();
+            break;
+        default:
+            // printf("Undefined state transition!");
+            break;
+        }
     }
-}
 
-static boolean radioSleepTransition()
-{
-    if (millis() - timeSinceLastTransition >= SLEEP_REFRESH_DELAY || millis() < timeSinceLastTransition)
+    boolean radioSleepTransition()
     {
-        timeSinceLastTransition = millis();
-        return true;
+        if (millis() - timeSinceLastTransition >= SLEEP_REFRESH_DELAY || millis() < timeSinceLastTransition)
+        {
+            timeSinceLastTransition = millis();
+            return true;
+        }
+
+        return false;
     }
 
-    return false;
-}
-
-static void radioSleepAction()
-{
-    LoRa.sleep();
-}
-
-static boolean radioRxTransition()
-{
-    if (millis() - timeSinceLastTransition >= RECEIVE_REFRESH_DELAY || millis() < timeSinceLastTransition)
+    void radioSleepAction()
     {
-        timeSinceLastTransition = millis();
-        return true;
+        LoRa.sleep();
     }
 
-    return false;
-}
+    boolean radioRxTransition()
+    {
+        if (millis() - timeSinceLastTransition >= RECEIVE_REFRESH_DELAY || millis() < timeSinceLastTransition)
+        {
+            timeSinceLastTransition = millis();
+            return true;
+        }
 
-static void radioRxAction()
-{
-    LoRa.receive();
-}
+        return false;
+    }
 
-void onReceive(int packetSize)
-{
+    void radioRxAction()
+    {
+        LoRa.receive();
+    }
+
+    void onReceive(int packetSize)
+    {
 // received a packet
 #ifdef DEBUG
-    Serial.print("Received packet '");
+        Serial.print("Received packet '");
 #endif
 
-    // read packet
-    for (int i = 0; i < packetSize; i++)
-    {
+        // read packet
+        for (int i = 0; i < packetSize; i++)
+        {
 #ifdef DEBUG
-        Serial.print(c);
+            Serial.print(c);
 #endif
-    }
+        }
 
 // print RSSI of packet
 #ifdef DEBUG
-    Serial.print("' with RSSI ");
-    Serial.println(LoRa.packetRssi());
+        Serial.print("' with RSSI ");
+        Serial.println(LoRa.packetRssi());
 #endif
-}
+    }
+
+public:
+    void radio_init()
+    {
+        // init stuff here
+
+        // init LoRa Library
+        LoRa.setPins(SS, RESET, DIO_0);
+        LoRa.setTxPower(TX_POWER);
+        if (!LoRa.begin(FREQ))
+        {
+#ifdef DEBUG
+            Serial.println("Starting LoRa failed!");
+#endif
+        }
+
+        // Wont have a callback
+        // LoRa.onReceive(onReceive); // Set up callback for receiving
+
+        // Setup FEM pins
+
+        radio_current_st = init_st;
+    }
+
+    // Loop function that runs radio state machine
+    void radio_loop()
+    {
+        stateTransition();
+
+        stateAction();
+    }
+};
