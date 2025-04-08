@@ -1,5 +1,7 @@
 #include "radio.h"
 
+#include "camera.h"
+
 #include <LoRa.h>
 
 #define SS 10               // TODO check pin number
@@ -15,13 +17,15 @@
 #define TRANSMIT_REFRESH_DELAY 60000 // time between transmits in ms
 #define RECEIVE_REFRESH_DELAY 10000  // time spent in receive in ms
 
+#define PACKET_SIZE 255 // Size of transmitted packet, max is 255 bytes
+
 class RadioManager
 {
 private:
     radio_st radio_current_st = init_st;
 
     boolean txComplete = false;
-    txBuffer[] = ;
+    byte txBuffer[PACKET_SIZE];
 
     unsigned long timeSinceLastTransition = 0;
 
@@ -41,6 +45,8 @@ private:
             if (millis() - timeSinceLastTransition >= TRANSMIT_REFRESH_DELAY || millis() < timeSinceLastTransition)
             {
                 mode_tx();
+
+                // Pull the file to transmit
 
                 timeSinceLastTransition = millis();
                 radio_current_st = tx_st;
@@ -85,11 +91,20 @@ private:
             break;
         case tx_st:
             // Do transmit things
+
+            // Put file data in the buffer
+
+            // Transmit the buffer
+            LoRa.beginPacket();
+            LoRa.write(txBuffer, PACKET_SIZE); // TODO transmitting for end of file (won't be full packet size)
+            LoRa.endPacket();
+
             break;
         case rx_st:
             // Do receive things
-            // print RSSI of packet
+
 #ifdef DEBUG
+            // print RSSI of packet
             Serial.print("' with RSSI ");
             Serial.println(LoRa.packetRssi());
 #endif
@@ -105,21 +120,29 @@ private:
     // Do all the actions to put the radio to sleep
     void mode_sleep()
     {
-        // TODO Sleep mode actions
+        // Sleep mode actions
+        digitalWrite(FEM, LOW);  // Turn FEM off
+        digitalWrite(TXRX, LOW); // Set tx\rx low
+
         LoRa.sleep();
     }
 
     // Do all the actions to put the radio in RX
     void mode_rx()
     {
-        // TODO set to rx mode
+        // Receive mode setup
+        digitalWrite(FEM, HIGH); // Turn FEM on
+        digitalWrite(TXRX, LOW); // Set tx\rx low for rx mode
+
         LoRa.receive();
     }
 
     // Do all the actions to put the radio in TX
     void mode_tx()
     {
-        // TODO transmit mode actions
+        // Transmit mode setup
+        digitalWrite(FEM, HIGH);  // Turn FEM on
+        digitalWrite(TXRX, HIGH); // Set tx\rx high for tx mode
     }
 
 public:
@@ -144,6 +167,8 @@ public:
         // LoRa.onReceive(onReceive); // Set up callback for receiving
 
         // Setup FEM pins
+        pinMode(FEM, OUTPUT);
+        pinMode(TXRX, OUTPUT);
 
         radio_current_st = init_st;
     }
