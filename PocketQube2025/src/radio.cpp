@@ -23,6 +23,7 @@ private:
 
     unsigned long timeSinceLastTransition = 0;
 
+    // Radio state machine transitions
     void stateTransition()
     {
         // State transition switch case
@@ -71,6 +72,7 @@ private:
         }
     }
 
+    // Run radio state machine actions
     void stateAction()
     {
         // State action switch case
@@ -81,7 +83,7 @@ private:
             // Doesn't need any actions, already all called in setup
             break;
         case sleep_st:
-            // Run sleep actions
+            // No needed sleep actions all will be in transition actions
             break;
         case tx_st:
             // Do transmit things
