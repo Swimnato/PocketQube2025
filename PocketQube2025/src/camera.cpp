@@ -51,7 +51,7 @@ class CameraManager {
       bool is_header = false;
       File outFile;
       //Flush the FIFO
-      noInterrupts();
+      
       myCAM.flush_fifo();
       //Clear the capture done flag
       myCAM.clear_fifo_flag();
@@ -59,12 +59,11 @@ class CameraManager {
       myCAM.start_capture();
 
       while(!myCAM.get_bit(ARDUCHIP_TRIG , CAP_DONE_MASK)){
-        interrupts();
         delayMicroseconds(1); //give a chance for the transmitter to recieve a message.
-        noInterrupts();
+        
       }
       length = myCAM.read_fifo_length();
-      interrupts();
+      
 
       if (length >= MAX_FIFO_SIZE) //384K
       {
@@ -76,7 +75,7 @@ class CameraManager {
       }
       //Construct a file name
       //Open the new file
-      noInterrupts();
+      
       outFile = SD.open(filePath + fileName, O_WRITE | O_CREAT | O_TRUNC);
       if(!outFile){
         #if DEBUG
@@ -106,33 +105,33 @@ class CameraManager {
         { 
           //Write image data to buffer if not full
           if (i < 256){
-            interrupts();
+            
             buf[i++] = temp;
-            noInterrupts();
+            
           }
           else
           {
             //Write 256 bytes image data to file
             myCAM.CS_HIGH();
             outFile.write(buf, 256);
-            interrupts();
+            
             i = 0;
             buf[i++] = temp;
-            noInterrupts();
+            
             myCAM.CS_LOW();
             myCAM.set_fifo_burst();
           }        
         }
         else if ((temp == 0xD8) & (temp_last == 0xFF))
         {
-          interrupts();
+          
           is_header = true;
           buf[i++] = temp_last;
           buf[i++] = temp;
-          noInterrupts();
+          
         } 
       }  
-      interrupts();
+      
     }
   
   public:
@@ -141,12 +140,12 @@ class CameraManager {
       static int photoNumber;
 
       //read photo nubmer offset, so that we never accidentally write over photos
-      noInterrupts();
+      
       File positionReader = SD.open(CAMERA_POSITION, FILE_READ);
       positionReader.seek(0);
       photoNumber = positionReader.parseInt();
       positionReader.close();
-      interrupts();
+      
 
       photoNumber++;
       //just so we never overflow the card with photos, the amount of saved photos can be defined in the config file
@@ -154,12 +153,12 @@ class CameraManager {
         photoNumber = 1;
       }
 
-      noInterrupts();
+      
       File positionWriter = SD.open(CAMERA_POSITION, O_RDWR);
       positionWriter.seek(0);
       positionWriter.print(photoNumber);
       positionWriter.close();
-      interrupts();
+      
 
       //take and save the photo
       CAMSaveToSDFile(CAMERA_DIRECTORY, String(photoNumber) + ".jpg");
