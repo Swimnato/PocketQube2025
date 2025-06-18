@@ -27,6 +27,9 @@ private:
     boolean txComplete = false;
     byte txBuffer[PACKET_SIZE];
 
+    int photoNumber = 0;
+    FILE imageFile;
+
     unsigned long timeSinceLastTransition = 0;
 
     // Radio state machine transitions
@@ -45,8 +48,6 @@ private:
             if (millis() - timeSinceLastTransition >= TRANSMIT_REFRESH_DELAY || millis() < timeSinceLastTransition)
             {
                 mode_tx();
-
-                // Pull the file to transmit
 
                 timeSinceLastTransition = millis();
                 radio_current_st = tx_st;
@@ -92,11 +93,39 @@ private:
         case tx_st:
             // Do transmit things
 
-            // Put file data in the buffer
+            // No file has been pulled
+            if (imageFile == NULL)
+            {
+                // open the position file and read in the current position file
+                File positionReader = SD.open(CAMERA_POSITION, FILE_READ);
+                positionReader.seek(0);
+                photoNumber = positionReader.parseInt();
+                positionReader.close();
+
+                // Pull the file to transmit
+                imageFile = SD.open(CAMERA_DIRECTORY + String(photoNumber) + ".jpg", FILE_READ);
+                imageFile.seek(0);
+            }
+
+            // Read data from file one at a time to find EOF
+            int currentPacketSize = PACKET_SIZE;
+            for (int i = 0; i < PACKET_SIZE; i++)
+            {
+                // Put file data in the buffer
+                txBuffer[i] = imageFile.read();
+
+                // Detect EOF
+                if (txBuffer[i] == -1)
+                {
+                    currentPacketSize = i;
+                    imageFile.close();
+                    break;
+                }
+            }
 
             // Transmit the buffer
             LoRa.beginPacket();
-            LoRa.write(txBuffer, PACKET_SIZE); // TODO transmitting for end of file (won't be full packet size)
+            LoRa.write(txBuffer, currentPacketSize);
             LoRa.endPacket();
 
             break;
