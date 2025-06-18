@@ -4,15 +4,15 @@
 
 #include <LoRa.h>
 
-#define SS 10               // TODO check pin number
-#define RESET 9             // TODO check pin number
+#define SS 3                // CS pin for RF module
+#define RESET 1             // Reset for RF module
 #define DIO_0 -1            // We will not have this pin so this will disable it
 #define TX_POWER 15         // Max input power for FEM (SKY66122-11) is 16dBm
 #define SPREADING_FACTOR 12 // set the spreading factor to 12 to maximize distance
 #define FREQ 915E6
 
-#define TXRX 7 // CTX pin for Front End Module
-#define FEM 5  // Enable disable pin for Front End Module
+#define TXRX 2 // CTX pin for Front End Module
+#define FEM 0  // Enable disable pin for Front End Module
 
 #define TRANSMIT_REFRESH_DELAY 60000 // time between transmits in ms
 #define RECEIVE_REFRESH_DELAY 10000  // time spent in receive in ms
