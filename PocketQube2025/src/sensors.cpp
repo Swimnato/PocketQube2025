@@ -196,7 +196,7 @@ class LMSModule{
 class MS5611Module{
     private:
     bool msflag = false;
-    MS5611 ms = MS5611(0x77);
+    MS5611 ms = MS5611(0x76);
     float pressure;
     float temperature;
 
@@ -252,14 +252,14 @@ class MS5611Module{
             ms.setOversampling(OSR_ULTRA_HIGH);// Can change to other settings
             ms.reset();
             collect_pressure(true);
-            //collect_temp(true);
+            collect_temp(true);
             return "MS5611 Initialized";
         }
     }
 
     float* get_data(){
-        if (msflag) return NULL;
         static float result[2];
+        if (msflag) return result;
         result[0] = pressure;
         result[1] = temperature;
         return result;

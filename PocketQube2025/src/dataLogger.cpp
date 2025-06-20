@@ -5,23 +5,39 @@
 #define CSV_LENGTH 1000
 #define SAMPLES_TO_AVERAGE 10
 
-#define NUM_ITEMS_IN_CSV 10
 enum columnValues : byte {
     TIME,
     ACCELERATION_X,
     ACCELERATION_Y,
     ACCELERATION_Z,
+    GYRO_X,
+    GYRO_Y,
+    GYRO_Z,
+    IMU_TEMP,
+    MAGNETIC_X,
+    MAGNETIC_Y,
+    MAGNETIC_Z,
+    MAGNETIC_DEGREES,
     PRESSURE,
-    TEMP,
+    ATMOSPHERE_TEMP,
     CURRENT_IN,
     CURRENT_OUT,
     ALTITUTE,
-    PHOTO
+    SOLAR_VOLTS,
+    SOLAR_CURRENT,
+    SOLAR_POWER,
+    BATTERY_VOLTS,
+    BATTERY_CURRENT,
+    BATTERY_POWER,
+    PHOTO,
+    END_OF_CSV
 };
+
+#define NUM_ITEMS_IN_CSV END_OF_CSV
 
 class DataPersistance{
     private:
-        const char* columnLabels = "Time,Accel_x,Accel_y,Accel_z,Pressure,Temp,Solar Current In,Current Consumption,Altitute(calculated),Photo#";
+        const char* columnLabels = "Time (ms),Accel_x,Accel_y,Accel_z,Gyro_x,Gyro_y,Gyro_z,IMU_TEMP,Magnetic_x,Magnetic_y,Magnetic_z,Magnetic Degrees,Pressure,Atmosphere Temp,Solar Current In,Current Consumption,Altitute(calculated),Solar Volts,Solar Current,Solar Power,Battery Volts,Battery Current,Battery Power,Photo#";
 
         double rawData[SAMPLES_TO_AVERAGE][NUM_ITEMS_IN_CSV];
         unsigned row = 0;
@@ -43,8 +59,15 @@ class DataPersistance{
                             destination->print(photoNumber);
                         }
                         break;
+                    case TIME:
+                        destination->print(millis());
+                        break;
                     default:
                         destination->print(data[col]);
+                        #if DEBUG
+                        Serial.print(data[col]);
+                        Serial.print(',');
+                        #endif
                         break;
                 }
                 destination->print(',');
@@ -53,16 +76,21 @@ class DataPersistance{
             
             destination->println();
             
+            #if DEBUG
+            Serial.println();
+            #endif
+            
         }
 
         double* averageData(){
             double* dataOut = new double[NUM_ITEMS_IN_CSV];
             
             for(byte col = 0; col < NUM_ITEMS_IN_CSV - 2; col++){
+                dataOut[col] = 0.0;
                 for(unsigned short sample = 0; sample < SAMPLES_TO_AVERAGE; sample++){
                     dataOut[col] += rawData[sample][col];
                 }
-                dataOut[col] /= SAMPLES_TO_AVERAGE;
+                dataOut[col] /= (double) SAMPLES_TO_AVERAGE;
             }
 
             return dataOut;
@@ -90,9 +118,16 @@ class DataPersistance{
                         break;
                     default:
                         rawData[row][col] = data[col];
+                        #if DEBUG
+                        Serial.print(data[col]);
+                        Serial.print(',');
+                        #endif
                         break;
                 }
             }
+            #if DEBUG
+            Serial.println();
+            #endif
             row++;
             if(row >= SAMPLES_TO_AVERAGE){
                 row = 0;
@@ -100,9 +135,8 @@ class DataPersistance{
         }
 
         void addToCSV(int photoNumber){
-            static unsigned position, fileNumber;
-            static bool writeHeader;
-            writeHeader = false;
+            unsigned position, fileNumber;
+            bool writeHeader = false;
 
             
             File positionFile = SD.open(PATH_TO_LOG_POS, FILE_READ);
@@ -126,12 +160,17 @@ class DataPersistance{
             positionFile.close();
 
             File CSV = SD.open(PATH_TO_LOG + fileNumber + ".csv", FILE_WRITE);
-            if(writeHeader)
+            if(writeHeader){
                 CSV.println(columnLabels);
+                #if DEBUG
+                Serial.println("Creating file header");
+                #endif
+            }
             
             double* data = averageData();
             
             appendData(&CSV, data, photoNumber);
+            CSV.close();
             delete data;
         }
 
