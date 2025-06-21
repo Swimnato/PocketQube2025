@@ -2,6 +2,7 @@
 #define RADIO_H
 
 #include <Arduino.h>
+#include <SD.h>
 
 // Radio state machine states
 typedef enum

@@ -14,7 +14,7 @@
 #define TXRX 2 // CTX pin for Front End Module
 #define FEM 0  // Enable disable pin for Front End Module
 
-#define TRANSMIT_REFRESH_DELAY 60000 // time between transmits in ms
+#define TRANSMIT_REFRESH_DELAY 6000 // time between transmits in ms
 #define RECEIVE_REFRESH_DELAY 10000  // time spent in receive in ms
 
 #define PACKET_SIZE 255 // Size of transmitted packet, max is 255 bytes
@@ -28,7 +28,7 @@ private:
     byte txBuffer[PACKET_SIZE];
 
     int photoNumber = 0;
-    FILE imageFile;
+    File imageFile;
 
     unsigned long timeSinceLastTransition = 0;
 
@@ -91,44 +91,67 @@ private:
             // No needed sleep actions all will be in transition actions
             break;
         case tx_st:
-            // Do transmit things
-
-            // No file has been pulled
-            if (imageFile == NULL)
             {
-                // open the position file and read in the current position file
-                File positionReader = SD.open(CAMERA_POSITION, FILE_READ);
-                positionReader.seek(0);
-                photoNumber = positionReader.parseInt();
-                positionReader.close();
+                // Do transmit things
+                #if DEBUG
+                Serial.println("Beginning transmission");
+                #endif
 
-                // Pull the file to transmit
-                imageFile = SD.open(CAMERA_DIRECTORY + String(photoNumber) + ".jpg", FILE_READ);
-                imageFile.seek(0);
-            }
-
-            // Read data from file one at a time to find EOF
-            int currentPacketSize = PACKET_SIZE;
-            for (int i = 0; i < PACKET_SIZE; i++)
-            {
-                // Put file data in the buffer
-                txBuffer[i] = imageFile.read();
-
-                // Detect EOF
-                if (txBuffer[i] == -1)
+                // No file has been pulled
+                if (imageFile == NULL)
                 {
-                    currentPacketSize = i;
-                    imageFile.close();
-                    break;
+                    // open the position file and read in the current position file
+                    #if DEBUG
+                    Serial.println("Opening image");
+                    #endif
+                    File positionReader = SD.open(CAMERA_POSITION, FILE_READ);
+                    positionReader.seek(0);
+                    photoNumber = positionReader.parseInt();
+                    positionReader.close();
+
+                    // Pull the file to transmit
+                    imageFile = SD.open(CAMERA_DIRECTORY + String(photoNumber) + ".jpg", FILE_READ);
+                    imageFile.seek(0);
                 }
+
+                // Read data from file one at a time to find EOF
+                #if DEBUG
+                Serial.println("Reading packet");
+                #endif
+                int currentPacketSize = PACKET_SIZE;
+                for (int i = 0; i < PACKET_SIZE; i++)
+                {
+                    // Put file data in the buffer
+                    txBuffer[i] = imageFile.read();
+
+                    // Detect EOF
+                    if (txBuffer[i] == -1)
+                    {
+                        currentPacketSize = i;
+                        imageFile.close();
+                        break;
+                    }
+                }
+
+                // Transmit the buffer
+                #if DEBUG
+                Serial.println("Sending data to radio");
+                #endif
+                LoRa.beginPacket();
+                #if DEBUG
+                Serial.println("Begun");
+                #endif
+                LoRa.write(txBuffer, currentPacketSize);
+                 #if DEBUG
+                Serial.println("Written");
+                #endif
+                LoRa.endPacket();
+                #if DEBUG
+                Serial.println("Tx complete");
+                #endif
+
+                break;
             }
-
-            // Transmit the buffer
-            LoRa.beginPacket();
-            LoRa.write(txBuffer, currentPacketSize);
-            LoRa.endPacket();
-
-            break;
         case rx_st:
             // Do receive things
 

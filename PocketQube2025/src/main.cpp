@@ -5,6 +5,7 @@
 #define CAMERA_ENABLE true
 #define OLD_BOARD false
 #define I2C_SENSORS true
+#define RADIO_ENABLE true
 
 #if DEBUG
   #pragma message "Compiling in debug mode"
@@ -17,6 +18,7 @@
 #include "dataLogger.h"
 #include "sensors.h"
 #include "powerMonitor.h"
+#include "radio.cpp"
 
 CameraManager camera;
 
@@ -29,6 +31,8 @@ LMSModule gyroAccelSensor;
 MS5611Module atmosphericSensor;
 
 PowerMonitor powerMonitor;
+
+RadioManager radioManager;
 
 int lastPhotoTaken = 0;
 
@@ -51,10 +55,10 @@ void setup() {
     Serial.println("\n\nStarting QubeSat");
   #endif
   pinMode(CAM_CS, OUTPUT);
-  pinMode(RADIO_CS, OUTPUT);
+  pinMode(RAD_CS, OUTPUT);
   pinMode(SD_CS, OUTPUT);
   digitalWrite(CAM_CS,HIGH);
-  digitalWrite(RADIO_CS, HIGH);
+  digitalWrite(RAD_CS, HIGH);
   digitalWrite(SD_CS,HIGH);
 
   //Initialize SD Card
@@ -85,6 +89,10 @@ void setup() {
   camera.setup(CAM_CS);
   #endif
 
+  #if RADIO_ENABLE
+  radioManager.radio_init();
+  #endif
+
   #if DEBUG
     Serial.println("\nQubeSat Initialized\n\n");
   #endif
@@ -99,6 +107,10 @@ void loop() {
     lastSensorRefresh = millis();
     updateSensors();
   }
+
+  #if RADIO_ENABLE
+  radioManager.radio_loop();
+  #endif
 
   #if CAMERA_ENABLE
   if(millis() - lastCameraRefresh >= CAMERA_REFRESH_DELAY || millis() < lastCameraRefresh) {
