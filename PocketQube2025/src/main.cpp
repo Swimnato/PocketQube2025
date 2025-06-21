@@ -32,7 +32,9 @@ MS5611Module atmosphericSensor;
 
 PowerMonitor powerMonitor;
 
+#if RADIO_ENABLE
 RadioManager radioManager;
+#endif
 
 int lastPhotoTaken = 0;
 

@@ -22,6 +22,8 @@
 class RadioManager
 {
 private:
+    bool isFunctional = false;
+
     radio_st radio_current_st = init_st;
 
     boolean txComplete = false;
@@ -203,6 +205,9 @@ public:
     {
         // init LoRa Library
         // LoRa.setSPI(spi); // Set SPI if not default
+        #if DEBUG
+        Serial.println("Starting LoRa");
+        #endif
         LoRa.setPins(SS, RESET, DIO_0);
         if (!LoRa.begin(FREQ))
         {
@@ -210,26 +215,39 @@ public:
             Serial.println("Starting LoRa failed!");
 #endif
         }
+        else{
+            isFunctional = true;
 
-        LoRa.setTxPower(TX_POWER);
-        LoRa.setSpreadingFactor(SPREADING_FACTOR);
-        LoRa.enableCrc(); // enable Cyclic Redundancy Checks to increase successful packets
+            #if DEBUG
+            Serial.println("Setting TX power");
+            #endif
+            LoRa.setTxPower(TX_POWER);
+            LoRa.setSpreadingFactor(SPREADING_FACTOR);
+            LoRa.enableCrc(); // enable Cyclic Redundancy Checks to increase successful packets
 
-        // Wont have a callback
-        // LoRa.onReceive(onReceive); // Set up callback for receiving
+            // Wont have a callback
+            // LoRa.onReceive(onReceive); // Set up callback for receiving
 
-        // Setup FEM pins
-        pinMode(FEM, OUTPUT);
-        pinMode(TXRX, OUTPUT);
+            // Setup FEM pins
+            pinMode(FEM, OUTPUT);
+            pinMode(TXRX, OUTPUT);
 
-        radio_current_st = init_st;
+            radio_current_st = init_st;
+        }
     }
 
     // Loop function that runs radio state machine
     void radio_loop()
     {
-        stateTransition();
+        if(isFunctional){
+            stateTransition();
 
-        stateAction();
+            stateAction();
+        }
+        else{
+            if(millis() % 1024 == 0){
+                radio_init();
+            }
+        }
     }
 };
