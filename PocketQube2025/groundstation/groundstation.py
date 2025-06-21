@@ -65,7 +65,8 @@ prev_packet = None
 pictureNumber = 0
 
 def loop():
-
+    global pictureNumber
+    
     file = open("image" + str(pictureNumber) + ".jpg", "a") # creates file if it doesnt exist otherwise appends
 
     # check for packet rx
