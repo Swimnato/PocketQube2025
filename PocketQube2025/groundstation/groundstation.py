@@ -66,7 +66,7 @@ pictureNumber = 0
 
 def loop():
     global pictureNumber
-    
+
     file = open("image" + str(pictureNumber) + ".jpg", "a") # creates file if it doesnt exist otherwise appends
 
     # check for packet rx
@@ -84,8 +84,7 @@ def loop():
 
         file.write(packet) # add in new bytes
         
-        # may not work since bytearray cant accept negative values
-        if (packet.find("-1") != -1): 
+        if (packet.endswith("")): 
             # EOF found
             pictureNumber = pictureNumber + 1
         
